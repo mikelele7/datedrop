@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Date Drop - Get Matched</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-on-surface": "#f2f1eb",
+            "tertiary-fixed": "#fddf9d",
+            "surface-bright": "#fbf9f3",
+            "on-primary": "#ffffff",
+            "surface-tint": "#ae2f2a",
+            "outline": "#8d706d",
+            "surface-container-high": "#e9e8e2",
+            "outline-variant": "#e0bfbb",
+            "on-surface-variant": "#59413e",
+            "on-surface": "#1b1c19",
+            "on-background": "#1b1c19",
+            "surface-container": "#efeee8",
+            "surface-container-highest": "#e3e3dd",
+            "primary-fixed": "#ffdad6",
+            "primary-fixed-dim": "#ffb4ab",
+            "tertiary-container": "#574410",
+            "secondary-container": "#e3dfd9",
+            "surface-container-low": "#f5f4ee",
+            "surface-dim": "#dbdad4",
+            "surface-variant": "#e3e3dd",
+            "inverse-surface": "#30312d",
+            "background": "#fbf9f3",
+            "secondary": "#605e59",
+            "surface-container-lowest": "#ffffff",
+            "primary": "#680006",
+            "primary-container": "#8c1515",
+            "surface": "#fbf9f3"
+          },
+          borderRadius: {
+            DEFAULT: "0.125rem",
+            lg: "0.25rem",
+            xl: "0.5rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Newsreader"],
+            body: ["Inter"],
+            label: ["Inter"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 6rem;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #fbf9f3;
+      color: #1b1c19;
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-headline {
+      font-family: "Newsreader", serif;
+    }
+
+    .choice-chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice-chip span {
+      display: inline-flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      background: #e3dfd9;
+      color: #59413e;
+      padding: 0.9rem 1rem;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      border: 1px solid transparent;
+      min-height: 48px;
+      text-align: center;
+    }
+
+    .choice-chip input:checked + span {
+      background: linear-gradient(135deg, #8c1515, #680006);
+      color: white;
+      box-shadow: 0 12px 32px rgba(140, 21, 21, 0.18);
+    }
+
+    .choice-chip input:focus-visible + span,
+    .scale-option input:focus-visible + span,
+    .trait-option input:focus-visible + span {
+      outline: 2px solid #8c1515;
+      outline-offset: 3px;
+    }
+
+    .trait-option input,
+    .scale-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .trait-option span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.9rem 1rem;
+      border-radius: 9999px;
+      background: #f5f4ee;
+      color: #59413e;
+      min-height: 48px;
+      border: 1px solid rgba(224, 191, 187, 0.35);
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .trait-option input:checked + span {
+      background: #8c1515;
+      color: #ffffff;
+      border-color: #8c1515;
+    }
+
+    .scale-option span {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      align-items: center;
+      justify-content: center;
+      min-height: 110px;
+      padding: 1rem;
+      border-radius: 1rem;
+      background: #f5f4ee;
+      color: #59413e;
+      border: 1px solid rgba(224, 191, 187, 0.35);
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .scale-option strong {
+      font-family: "Newsreader", serif;
+      font-size: 2rem;
+      color: #8c1515;
+      line-height: 1;
+    }
+
+    .scale-option input:checked + span {
+      background: #ffffff;
+      border-color: #8c1515;
+      box-shadow: 0 12px 32px rgba(27, 28, 25, 0.06);
+      transform: translateY(-2px);
+    }
+
+    .field-shell {
+      background: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 12px 32px rgba(27, 28, 25, 0.04);
+    }
+
+    .hero-glow {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(70px);
+      pointer-events: none;
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-primary-container selection:text-on-primary">
+  <nav class="fixed top-0 w-full z-50 bg-[#fbf9f3]/85 backdrop-blur-xl transition-colors duration-300 border-b border-outline-variant/10">
+    <div class="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
+      <a class="font-headline italic text-2xl text-[#8c1515]" href="./index.html">Date Drop</a>
+      <div class="hidden md:flex items-center space-x-8">
+        <a class="text-[#59413e] font-label font-medium hover:text-[#8c1515] transition-colors duration-300" href="#questions">Questions</a>
+        <a class="text-[#59413e] font-label font-medium hover:text-[#8c1515] transition-colors duration-300" href="#review">Review</a>
+      </div>
+      <a class="text-[#8c1515] font-label font-semibold tracking-wide hover:text-[#680006] transition-colors duration-300" href="./index.html">Back to home</a>
+    </div>
+  </nav>
+
+  <main class="pt-28 pb-20 px-6 overflow-hidden">
+    <section class="relative max-w-7xl mx-auto mb-12 md:mb-16">
+      <div class="hero-glow top-8 left-0 h-56 w-56 bg-primary-container/15"></div>
+      <div class="hero-glow bottom-0 right-8 h-72 w-72 bg-tertiary-fixed/20"></div>
+      <div class="grid lg:grid-cols-[0.95fr_1.2fr] gap-10 items-start relative z-10">
+        <div class="pt-6 lg:sticky lg:top-28 self-start">
+          <div class="inline-flex items-center space-x-2 bg-surface-container-low px-4 py-1.5 rounded-full border border-outline-variant/20 mb-6">
+            <span class="material-symbols-outlined text-sm text-primary-container">mail</span>
+            <span class="text-sm font-label text-on-surface-variant">Custom signup flow for Date Drop</span>
+          </div>
+          <h1 class="font-headline text-5xl md:text-6xl lg:text-7xl leading-tight text-on-surface tracking-tight mb-6">
+            Get matched,<br />
+            <span class="italic text-primary-container">without the ugly form.</span>
+          </h1>
+          <p class="text-lg md:text-xl text-on-surface-variant leading-relaxed max-w-xl mb-8">
+            This page mirrors the Date Drop aesthetic while capturing the same questionnaire in a cleaner, more intentional experience for UQ students.
+          </p>
+          <div class="field-shell p-5 md:p-6 bg-surface-container-lowest border border-outline-variant/15">
+            <p class="font-label text-xs uppercase tracking-[0.18em] text-primary-container mb-3">What this includes</p>
+            <ul class="space-y-3 text-on-surface-variant text-sm md:text-base">
+              <li>All 8 approved questions from your updated form draft.</li>
+              <li>Editorial styling aligned to the current landing page.</li>
+              <li>Client-side review summary ready for team feedback.</li>
+              <li>A clean base for connecting to Formspree, Firebase, Supabase, or Google Sheets later.</li>
+            </ul>
+          </div>
+        </div>
+
+        <section id="questions" class="field-shell p-6 md:p-8 lg:p-10 border border-outline-variant/15 bg-surface-container-lowest">
+          <div class="mb-8">
+            <p class="font-label text-xs uppercase tracking-[0.18em] text-primary-container mb-3">Questionnaire</p>
+            <h2 class="font-headline text-4xl md:text-5xl text-on-surface mb-4">Date Drop profile form</h2>
+            <p class="text-on-surface-variant text-base md:text-lg max-w-2xl">For now, this version is styled for presentation and team review. It validates the interaction flow and lets users preview their answers before submission.</p>
+          </div>
+
+          <form id="date-drop-form" class="space-y-10">
+            <section>
+              <label class="block font-headline text-2xl text-on-surface mb-4">1. Hangout Type?</label>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="hangoutType" value="1 on 1" required /><span>1 on 1</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="hangoutType" value="Group" /><span>Group</span></label>
+              </div>
+            </section>
+
+            <section>
+              <label class="block font-headline text-2xl text-on-surface mb-4">2. Whats Your Gender?</label>
+              <div class="grid sm:grid-cols-3 gap-3">
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="gender" value="Male" required /><span>Male</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="gender" value="Female" /><span>Female</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="gender" value="Rather not say" /><span>Rather not say</span></label>
+              </div>
+            </section>
+
+            <section>
+              <label class="block font-headline text-2xl text-on-surface mb-4">3. What is your type?</label>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="type" value="Straight" required /><span>Straight</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="type" value="Gay" /><span>Gay</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="type" value="Transgender" /><span>Transgender</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="type" value="Lesbian" /><span>Lesbian</span></label>
+              </div>
+            </section>
+
+            <section>
+              <label for="core-values" class="block font-headline text-2xl text-on-surface mb-4">4. What are your top 3 core values in life?</label>
+              <textarea id="core-values" name="coreValues" rows="4" required class="w-full rounded-2xl border-0 bg-surface-container-high px-5 py-4 text-on-surface placeholder:text-on-surface-variant/70 focus:ring-2 focus:ring-primary-container" placeholder="Example: honesty, growth, loyalty"></textarea>
+            </section>
+
+            <section>
+              <label class="block font-headline text-2xl text-on-surface mb-4">5. Where would you go for an ideal first date or hangout?</label>
+              <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="idealDate" value="Beach" required /><span>Beach</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="idealDate" value="Coffee" /><span>Coffee</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="idealDate" value="Study/work session" /><span>Study/work session</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="idealDate" value="Movies" /><span>Movies</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="idealDate" value="Dining out" /><span>Dining out</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="idealDate" value="Festival/Events" /><span>Festival/Events</span></label>
+                <label class="choice-chip relative cursor-pointer"><input type="radio" name="idealDate" value="Southbank" /><span>Southbank</span></label>
+                <label class="choice-chip relative cursor-pointer"><input id="ideal-date-other-radio" type="radio" name="idealDate" value="Other" /><span>Other</span></label>
+              </div>
+              <div id="ideal-date-other-wrap" class="hidden">
+                <label for="ideal-date-other" class="block font-label text-sm uppercase tracking-[0.12em] text-on-surface-variant mb-2">Other</label>
+                <input id="ideal-date-other" name="idealDateOther" type="text" class="w-full rounded-2xl border-0 bg-surface-container-high px-5 py-4 text-on-surface placeholder:text-on-surface-variant/70 focus:ring-2 focus:ring-primary-container" placeholder="Tell us your ideal spot" />
+              </div>
+            </section>
+
+            <section>
+              <label for="free-day" class="block font-headline text-2xl text-on-surface mb-4">6. Describe your ideal way to spend a free day</label>
+              <textarea id="free-day" name="freeDay" rows="5" required class="w-full rounded-2xl border-0 bg-surface-container-high px-5 py-4 text-on-surface placeholder:text-on-surface-variant/70 focus:ring-2 focus:ring-primary-container" placeholder="Write a few lines about your ideal day"></textarea>
+            </section>
+
+            <section>
+              <label class="block font-headline text-2xl text-on-surface mb-4">7. Which traits do you value most in others?</label>
+              <p class="text-sm text-on-surface-variant mb-4">Select as many as apply.</p>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <label class="trait-option relative cursor-pointer"><input type="checkbox" name="traits" value="Ambition" /><span>Ambition</span></label>
+                <label class="trait-option relative cursor-pointer"><input type="checkbox" name="traits" value="Empathy" /><span>Empathy</span></label>
+                <label class="trait-option relative cursor-pointer"><input type="checkbox" name="traits" value="Intellect" /><span>Intellect</span></label>
+                <label class="trait-option relative cursor-pointer"><input type="checkbox" name="traits" value="Adventure" /><span>Adventure</span></label>
+                <label class="trait-option relative cursor-pointer"><input type="checkbox" name="traits" value="Humor" /><span>Humor</span></label>
+                <label class="trait-option relative cursor-pointer"><input type="checkbox" name="traits" value="Kindness" /><span>Kindness</span></label>
+              </div>
+            </section>
+
+            <section>
+              <label class="block font-headline text-2xl text-on-surface mb-4">8. How social are you?</label>
+              <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <label class="scale-option relative cursor-pointer"><input type="radio" name="socialLevel" value="1 - not very social" required /><span><strong>1</strong><small>Not very social</small></span></label>
+                <label class="scale-option relative cursor-pointer"><input type="radio" name="socialLevel" value="2 - somewhat social" /><span><strong>2</strong><small>Somewhat social</small></span></label>
+                <label class="scale-option relative cursor-pointer"><input type="radio" name="socialLevel" value="3 - pretty social" /><span><strong>3</strong><small>Pretty social</small></span></label>
+                <label class="scale-option relative cursor-pointer"><input type="radio" name="socialLevel" value="4 - Very Social" /><span><strong>4</strong><small>Very Social</small></span></label>
+              </div>
+            </section>
+
+            <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between pt-4">
+              <p class="text-sm text-on-surface-variant max-w-xl">This prototype currently previews entries on-page so your team can review content, styling, and interaction before wiring it to a backend.</p>
+              <button type="submit" class="bg-gradient-to-br from-primary-container to-primary text-on-primary px-8 py-4 rounded-md font-label font-semibold text-lg shadow-[0_12px_32px_rgba(140,21,21,0.2)] hover:scale-[1.02] transition-transform duration-300">Review answers</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <section id="review" class="max-w-7xl mx-auto">
+      <div id="summary-card" class="hidden field-shell p-6 md:p-8 lg:p-10 border border-outline-variant/15 bg-surface-container-lowest">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+          <div>
+            <p class="font-label text-xs uppercase tracking-[0.18em] text-primary-container mb-3">Review</p>
+            <h2 class="font-headline text-4xl md:text-5xl text-on-surface">Submission preview</h2>
+          </div>
+          <p class="text-on-surface-variant max-w-2xl">This lets your team inspect the information architecture and answer formatting before connecting the experience to a real database or form handler.</p>
+        </div>
+        <div id="summary-grid" class="grid md:grid-cols-2 gap-4"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-[#dbdad4] w-full rounded-t-3xl mt-0">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 md:px-12 py-16 w-full max-w-7xl mx-auto gap-6">
+      <div class="text-center md:text-left">
+        <div class="font-headline text-xl text-[#59413e] mb-2">Date Drop</div>
+        <p class="font-body text-sm text-[#59413e]">Custom form prototype for team review.</p>
+      </div>
+      <div class="flex flex-wrap justify-center md:justify-end gap-6 md:gap-8">
+        <a class="text-[#59413e] font-body text-sm hover:underline decoration-[#8c1515] underline-offset-4" href="./index.html">Home</a>
+        <a class="text-[#59413e] font-body text-sm hover:underline decoration-[#8c1515] underline-offset-4" href="#questions">Questions</a>
+        <a class="text-[#59413e] font-body text-sm hover:underline decoration-[#8c1515] underline-offset-4" href="#review">Review</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const form = document.getElementById("date-drop-form");
+    const summaryCard = document.getElementById("summary-card");
+    const summaryGrid = document.getElementById("summary-grid");
+    const otherRadio = document.getElementById("ideal-date-other-radio");
+    const otherWrap = document.getElementById("ideal-date-other-wrap");
+    const otherInput = document.getElementById("ideal-date-other");
+    const idealDateRadios = document.querySelectorAll('input[name="idealDate"]');
+
+    function syncOtherField() {
+      const isOther = otherRadio.checked;
+      otherWrap.classList.toggle("hidden", !isOther);
+      otherInput.required = isOther;
+      if (!isOther) {
+        otherInput.value = "";
+      }
+    }
+
+    idealDateRadios.forEach((radio) => {
+      radio.addEventListener("change", syncOtherField);
+    });
+
+    function getCheckedValue(name) {
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      return checked ? checked.value : "Not answered";
+    }
+
+    function renderSummaryItem(label, value) {
+      const item = document.createElement("article");
+      item.className = "rounded-2xl bg-surface-container-low p-5 border border-outline-variant/15";
+      item.innerHTML = `
+        <p class="font-label text-xs uppercase tracking-[0.14em] text-primary-container mb-3">${label}</p>
+        <p class="text-on-surface leading-relaxed whitespace-pre-line">${value || "Not answered"}</p>
+      `;
+      return item;
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const selectedTraits = formData.getAll("traits");
+      const idealDate = getCheckedValue("idealDate") === "Other"
+        ? `Other: ${otherInput.value.trim() || "Not specified"}`
+        : getCheckedValue("idealDate");
+
+      const answers = [
+        ["Hangout Type", getCheckedValue("hangoutType")],
+        ["Gender", getCheckedValue("gender")],
+        ["Type", getCheckedValue("type")],
+        ["Top 3 core values in life", formData.get("coreValues")],
+        ["Ideal first date or hangout", idealDate],
+        ["Ideal free day", formData.get("freeDay")],
+        ["Traits valued most in others", selectedTraits.length ? selectedTraits.join(", ") : "None selected"],
+        ["How social are you?", getCheckedValue("socialLevel")]
+      ];
+
+      summaryGrid.innerHTML = "";
+      answers.forEach(([label, value]) => {
+        summaryGrid.appendChild(renderSummaryItem(label, value));
+      });
+
+      summaryCard.classList.remove("hidden");
+      summaryCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    window.addEventListener("load", () => {
+      document.body.classList.add("loaded");
+      syncOtherField();
+    });
+  </script>
+</body>
+</html>
